@@ -1,3 +1,11 @@
+"""Implementation of GaborConv2d torch module from [1]_.
+
+Citations
+---------
+.. [1] https://github.com/iKintosh/GaborNet
+
+"""
+
 import math
 from typing import List, Optional, Tuple, Union
 
@@ -19,7 +27,6 @@ class GaborConv2d(Module):
         self.kernel_size: Union[int, Tuple[int, int]] = kernel_size
         self.delta: float = 1e-3
 
-
         self.conv_layer: Conv2d = Conv2d(
             in_channels, out_channels, kernel_size, stride, padding,
             dilation, groups, bias, padding_mode,
@@ -28,7 +35,8 @@ class GaborConv2d(Module):
         self.freq = nn.Parameter(
             (math.pi / 2) * math.sqrt(2)
             ** (-torch.randint(0, 5, (self.out_channels, self.in_channels)))
-                .type(torch.Tensor), requires_grad=True,
+                .type(torch.Tensor),
+            requires_grad=True,
         )
 
         self.theta = nn.Parameter(
@@ -37,7 +45,7 @@ class GaborConv2d(Module):
             requires_grad=True,
         )
 
-        self.sigma = nn.Parameter(math.pi / params['freq'],
+        self.sigma = nn.Parameter(math.pi / self.freq,
             requires_grad=True)
 
         self.psi = nn.Parameter(

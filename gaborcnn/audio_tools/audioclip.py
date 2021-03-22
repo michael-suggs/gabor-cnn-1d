@@ -36,10 +36,9 @@ class Clip:
         self.filename = os.path.basename(filename)
         self.path = os.path.abspath(filename)
         self.directory = os.path.dirname()
-
         self.category = self.directory.split('/')[-1]
-        self.audio = Clip.Audio(self.path)
 
+        self.audio = Clip.Audio(self.path)
         with self.audio as audio:
             self._compute_mfcc(audio)
             self._compute_scr(audio)
@@ -53,17 +52,11 @@ class Clip:
         self.logamp = logamplitude(self.melspec)
         self.mfcc = mfcc(S=self.logamp, n_mfcc=13).transpose()
 
-    def _compute_scr(self, audio) -> None:
+    def _compute_zcr(self, audio) -> None:
         frames = int(np.ceil(len(audio.data) / 1000.
                     * Clip.RATE / Clip.FRAME))
         self.zcr = np.asarray([np.mean(.5 * np.abs(np.diff(np.sign(
             Clip._get_frame(audio, i))))) for i in range(frames)])
-
-    def display_audio(self):
-        fig, ax0 = plt.subplot(2, 1, 1)
-        ax0.set_title(f'{self.category} : {self.filename}')
-        ax0.plot(np.arange(0, len(self.audio.raw)) / Clip.RATE, self.audio.raw)
-
 
     @staticmethod
     def _get_frame(audio, index):
