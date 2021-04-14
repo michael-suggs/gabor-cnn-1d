@@ -98,10 +98,9 @@ def make_arrays(datadir: str, csv: str, test_size: float, fold: int = None):
 
 
 def train_test_np(label_df: pd.DataFrame, test_size: float):
-    X = np.expand_dims(
-        np.asarray(list(map(
+    X = np.asarray(list(map(
             lambda p: librosa_audio(p), list(label_df.filename)
-        ))), 2)
+    )))
     y = np.reshape(label_df['category'].to_numpy(), (-1,1))
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size)
