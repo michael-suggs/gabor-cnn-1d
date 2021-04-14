@@ -27,18 +27,22 @@ def plot_clip_overview(clip: Clip, ax: Axes):
     ax_spectrogram = add_subplot_axes(ax, [0.0, 0.0, 1.0, 0.7])
 
     with clip.audio as audio:
-        ax_waveform.plot(np.arange(0, len(audio.raw)) / float(Clip.RATE), audio.raw)
+        ax_waveform.plot(np.arange(0, len(audio.raw)) /
+                         float(Clip.RATE), audio.raw)
         ax_waveform.get_xaxis().set_visible(False)
         ax_waveform.get_yaxis().set_visible(False)
-        ax_waveform.set_title('{0} \n {1}'.format(clip.category, clip.filename), {'fontsize': 8}, y=1.03)
+        ax_waveform.set_title('{0} \n {1}'.format(
+            clip.category, clip.filename), {'fontsize': 8}, y=1.03)
 
-        librosa.display.specshow(clip.logamplitude, sr=Clip.RATE, x_axis='time', y_axis='mel', cmap='RdBu_r')
+        librosa.display.specshow(
+            clip.logamplitude, sr=Clip.RATE, x_axis='time', y_axis='mel', cmap='RdBu_r')
         ax_spectrogram.get_xaxis().set_visible(False)
         ax_spectrogram.get_yaxis().set_visible(False)
 
 
 def plot_single_clip(clip: Clip):
-    col_names = list('MFCC_{}'.format(i) for i in range(np.shape(clip.mfcc)[1]))
+    col_names = list('MFCC_{}'.format(i)
+                     for i in range(np.shape(clip.mfcc)[1]))
     MFCC = pd.DataFrame(clip.mfcc[:, :], columns=col_names)
 
     f = plt.figure(figsize=(10, 6))
@@ -52,8 +56,10 @@ def plot_single_clip(clip: Clip):
     ax_zcr = add_subplot_axes(ax, [0.0, 0.85, 1.0, 0.05])
     ax_zcr.set_xlim(0.0, 1.0)
 
-    plt.title('Feature distribution across frames of a single clip ({0} : {1})'.format(clip.category, clip.filename), y=1.5)
-    sns.boxplot(MFCC, vert=False, order=list(reversed(MFCC.columns)), ax=ax_mfcc)
+    plt.title('Feature distribution across frames of a single clip ({0} : {1})'.format(
+        clip.category, clip.filename), y=1.5)
+    sns.boxplot(MFCC, vert=False, order=list(
+        reversed(MFCC.columns)), ax=ax_mfcc)
     sns.boxplot(pd.DataFrame(clip.zcr, columns=['ZCR']), vert=False, ax=ax_zcr)
 
 
@@ -88,7 +94,8 @@ def generate_feature_summary(clips, category, clip, coeff) -> None:
     aggregate = []
     for i in range(0, len(clips[category])):
         MFCC[i] = clips[category][i].mfcc[:, coeff]
-        aggregate = np.concatenate([aggregate, clips[category][i].mfcc[:, coeff]])
+        aggregate = np.concatenate(
+            [aggregate, clips[category][i].mfcc[:, coeff]])
 
     f = plt.figure(figsize=(14, 12))
     f.subplots_adjust(hspace=0.6, wspace=0.3)
@@ -102,12 +109,16 @@ def generate_feature_summary(clips, category, clip, coeff) -> None:
     ax2.set_xlim(-100, 250)
     ax4.set_xlim(-100, 250)
 
-    plot_feature_one_clip(clips[category][clip].zcr, f'ZCR distribution across frames\n{title}', ax1)
-    plot_feature_one_clip(clips[category][clip].mfcc[:, coeff], f'MFCC_{coeff} distribution across frames\n{title}', ax2)
+    plot_feature_one_clip(clips[category][clip].zcr,
+                          f'ZCR distribution across frames\n{title}', ax1)
+    plot_feature_one_clip(clips[category][clip].mfcc[:, coeff],
+                          f'MFCC_{coeff} distribution across frames\n{title}', ax2)
 
     clipcat = clips[category][clip].category
-    plot_feature_all_clips(MFCC, f'Differences in MFCC_{coeff} distribution\nbetween clips of {clipcat}', ax3)
-    plot_feature_all_clips(aggregate, f'Aggregate MFCC_{coeff} distribution\n(bag-of-frames across all clips\nof {clipcat})', ax4)
+    plot_feature_all_clips(
+        MFCC, f'Differences in MFCC_{coeff} distribution\nbetween clips of {clipcat}', ax3)
+    plot_feature_all_clips(
+        aggregate, f'Aggregate MFCC_{coeff} distribution\n(bag-of-frames across all clips\nof {clipcat})', ax4)
 
 
 def plot_all_features_aggregate(clips, ax):
@@ -120,15 +131,19 @@ def plot_all_features_aggregate(clips, ax):
     aggregated_mfcc = pd.DataFrame(clips[0].mfcc[:, :], columns=col_names)
 
     for clip in clips:
-        aggregated_mfcc = aggregated_mfcc.append(pd.DataFrame(clip.mfcc[:, :], columns=col_names))
+        aggregated_mfcc = aggregated_mfcc.append(
+            pd.DataFrame(clip.mfcc[:, :], columns=col_names))
 
     aggregated_zcr = pd.DataFrame(clips[0].zcr, columns=['ZCR'])
     for clip in clips:
-        aggregated_zcr = aggregated_zcr.append(pd.DataFrame(clip.zcr, columns=['ZCR']))
+        aggregated_zcr = aggregated_zcr.append(
+            pd.DataFrame(clip.zcr, columns=['ZCR']))
 
     sns.despine(ax=ax_mfcc)
-    ax.set_title('Aggregate distribution: {0}'.format(clips[0].category), y=1.10, fontsize=10)
-    sns.boxplot(aggregated_mfcc, vert=True, order=aggregated_mfcc.columns, ax=ax_mfcc)
+    ax.set_title('Aggregate distribution: {0}'.format(
+        clips[0].category), y=1.10, fontsize=10)
+    sns.boxplot(aggregated_mfcc, vert=True,
+                order=aggregated_mfcc.columns, ax=ax_mfcc)
     ax_mfcc.set_xticklabels(range(0, 13), rotation=90, fontsize=8)
     ax_mfcc.set_xlabel('MFCC', fontsize=8)
     ax_mfcc.set_ylim(-150, 200)
@@ -136,7 +151,8 @@ def plot_all_features_aggregate(clips, ax):
     ax_mfcc.set_yticklabels(('-150', '', '', '0', '', '', '', '200'))
 
     sns.despine(ax=ax_zcr, right=False, left=True)
-    sns.boxplot(aggregated_zcr, vert=True, order=aggregated_zcr.columns, ax=ax_zcr)
+    sns.boxplot(aggregated_zcr, vert=True,
+                order=aggregated_zcr.columns, ax=ax_zcr)
     ax_zcr.set_ylim(0.0, 0.5)
     ax_zcr.set_yticks((0.0, 0.25, 0.5))
     ax_zcr.set_yticklabels(('0.0', '', '0.5'))
@@ -169,7 +185,8 @@ def plot_features_scatter(feature1, feature2, category, category_name, ax, legen
         f1 = feature1[category == c]
         f2 = feature2[category == c]
         size = 50 if c != 9 else 35
-        plots.append(ax.scatter(f1, f2, c=colors[c], s=size, marker=markers[c]))
+        plots.append(ax.scatter(
+            f1, f2, c=colors[c], s=size, marker=markers[c]))
         labels.append(category_name[category == c][0:1][0][6:])
 
     font.set_size(11)
@@ -186,10 +203,12 @@ def plot_features_scatter(feature1, feature2, category, category_name, ax, legen
         labels = pretty_labels
 
     if legend == 'small':
-        ax.legend(plots, labels, ncol=2, loc='upper center', frameon=False, fancybox=False, borderpad=1.0, prop=font)
+        ax.legend(plots, labels, ncol=2, loc='upper center',
+                  frameon=False, fancybox=False, borderpad=1.0, prop=font)
     elif legend == 'big':
         font.set_size(11)
-        ax.legend(plots, labels, ncol=5, columnspacing=2, markerscale=1.5, loc='upper center', frameon=False, fancybox=False, borderpad=1.0, prop=font)
+        ax.legend(plots, labels, ncol=5, columnspacing=2, markerscale=1.5,
+                  loc='upper center', frameon=False, fancybox=False, borderpad=1.0, prop=font)
 
 
 def plot_pca() -> None:
@@ -200,8 +219,9 @@ def plot_pca() -> None:
     clip_features['Second principal component'] = X[:, 1]
 
     f, axes = plt.subplots(1, 1, figsize=(14, 6))
-    pretty_labels = ['Barking dog', 'Rain', 'Sea waves', 'Crying baby', 'Ticking clock', 'Sneeze', 'Helicopter', 'Chainsaw', 'Crowing rooster', 'Crackling fire']
+    pretty_labels = ['Barking dog', 'Rain', 'Sea waves', 'Crying baby', 'Ticking clock',
+                     'Sneeze', 'Helicopter', 'Chainsaw', 'Crowing rooster', 'Crackling fire']
 
     plot_features_scatter(clip_features['First principal component'], clip_features['Second principal component'],
-                        clip_features['category'], clip_features['category_name'],
-                        axes, 'big', pretty_labels, crop_right=150)
+                          clip_features['category'], clip_features['category_name'],
+                          axes, 'big', pretty_labels, crop_right=150)

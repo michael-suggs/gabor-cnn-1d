@@ -48,18 +48,17 @@ class Clip:
 
     def _compute_mfcc(self, audio) -> None:
         self.melspec = melspectrogram(audio.raw, sr=Clip.RATE,
-            hop_length=Clip.FRAME)
+                                      hop_length=Clip.FRAME)
         self.logamp = logamplitude(self.melspec)
         self.mfcc = mfcc(S=self.logamp, n_mfcc=13).transpose()
 
     def _compute_zcr(self, audio) -> None:
         frames = int(np.ceil(len(audio.data) / 1000.
-                    * Clip.RATE / Clip.FRAME))
+                             * Clip.RATE / Clip.FRAME))
         self.zcr = np.asarray([np.mean(.5 * np.abs(np.diff(np.sign(
             Clip._get_frame(audio, i))))) for i in range(frames)])
 
     @staticmethod
     def _get_frame(audio, index):
         return (None if index < 0 else
-            audio.raw[(index * Clip.FRAME):(index+1) * Clip.FRAME])
-
+                audio.raw[(index * Clip.FRAME):(index+1) * Clip.FRAME])

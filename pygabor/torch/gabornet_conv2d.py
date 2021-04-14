@@ -35,18 +35,18 @@ class GaborConv2d(Module):
         self.freq = nn.Parameter(
             (math.pi / 2) * math.sqrt(2)
             ** (-torch.randint(0, 5, (self.out_channels, self.in_channels)))
-                .type(torch.Tensor),
+            .type(torch.Tensor),
             requires_grad=True,
         )
 
         self.theta = nn.Parameter(
             (math.pi / 8) * torch.randint(0, 8,
-                (self.out_channels, self.in_channels)).type(torch.Tensor),
+                                          (self.out_channels, self.in_channels)).type(torch.Tensor),
             requires_grad=True,
         )
 
         self.sigma = nn.Parameter(math.pi / self.freq,
-            requires_grad=True)
+                                  requires_grad=True)
 
         self.psi = nn.Parameter(
             math.pi * torch.rand(self.out_channels, self.in_channels),
@@ -97,7 +97,7 @@ class GaborConv2d(Module):
     def calculate_weights(self):
         for i in range(self.conv_layer.out_channels):
             for j in range(self.conv_layer.in_channels):
-                sigma = self.sigma[i,j].expand_as(self.y)
+                sigma = self.sigma[i, j].expand_as(self.y)
                 freq = self.freq[i, j].expand_as(self.y)
                 theta = self.theta[i, j].expand_as(self.y)
                 psi = self.psi[i, j].expand_as(self.y)
@@ -120,7 +120,8 @@ class GaborCNN2D(Module):
         super(GaborCNN2D, self).__init__()
         if not layers:
             self.layers = [
-                GaborConv2d(in_channels=1, out_channels=96, kernel_size=(11, 11)),
+                GaborConv2d(in_channels=1, out_channels=96,
+                            kernel_size=(11, 11)),
                 nn.Conv2d(96, 384, (3, 3)),
                 nn.Linear(384*3*3, 64),
                 nn.Linear(64, 2),
